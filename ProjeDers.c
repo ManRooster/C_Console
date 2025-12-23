@@ -4,6 +4,7 @@
 #include <string.h>  // string işlemleri (strlen, fgets, vb.)
 #include <ctype.h>   // karakter sınıflandırma (tolower, isspace)
 #include <math.h>    // matematik fonksiyonları (floor, fmod)
+#include <time.h>	// zaman işlemleri (time, localtime, strftime)
 
 #define NAME_LEN 50
 
@@ -41,6 +42,52 @@ void dizi_boyutlama() {
 	sure = (float*)malloc(CAPACITY * sizeof(float));
 }
 
+void kaydet(int dersSayi,int program) {
+	// program olup olmadığını kontrol eder
+	if (program == 0) {
+		system("cls");
+		printf("Plan olusturulmadi\n");
+		return 0;
+	}
+	else {
+
+		time_t currentTime;
+		struct tm *tm_info;
+		char dosyaAdi[100];
+
+		// Şu anki zamanı al
+		time(&currentTime);
+		tm_info = localtime(&currentTime);
+
+		// Dosya adı formatla
+		strftime(
+			dosyaAdi,
+			sizeof(dosyaAdi),
+			"%d.%m.%Y_%H.%M.%S_Ders_Programi.txt",
+			tm_info
+		);
+
+		FILE *dosya = fopen(dosyaAdi, "w");
+		if (dosya == NULL) {
+			printf("Dosya acma hatasi!\n");
+			return;
+		}
+
+		fprintf(dosya, "------------------------------------------\n");
+		fprintf(dosya, "| Ders Adi     | Zorluk |  Saat | dakika |\n");
+		fprintf(dosya, "------------------------------------------\n");
+
+		for (int i = 0; i < dersSayi; i++) {
+			if (strlen(Ders[i][0]) == 0) break; // Boş ders adı ise dur
+			fprintf(dosya, "%-15s | %-10s | %.f | %.f |\n", Ders[i][0], Ders[i][1], floor(sure[i]/60), fmod(sure[i],60));
+		}
+
+		fclose(dosya);
+		printf("Ders plani '%s' dosyasina kaydedildi.\n\n", dosyaAdi);
+
+	}
+}
+
 
 // scanf ile sayısal okumalardan sonra tamponda kalan '\n' karakterini temizler
 void buffer_temizleme() {
@@ -58,7 +105,7 @@ int DersEkleme(int EkliDersSayi)
 		printf("-----------------------\n");
 		printf("Ders Sayisi girin: ");
 		// Ders sayısını alır
-		int dersSayi = 0;
+		int dersSayi;
 		if (scanf("%d", &dersSayi) != 1 || dersSayi <= 0) {
 			buffer_temizleme();
 			system("cls");
@@ -201,11 +248,12 @@ return 0;
 int main(void) {
 	// Başlangıçta gerekli bellekleri ayır
 	dizi_boyutlama();
+	int DersSayi = 0;
 	// Açıldığında ders ekleme ekranına yönlendirir
 	printf("Program ilk defa calistirildigi icin ders ekleme ekranina yonlendiriliyorsunuz.\n");
 	printf("-----------------------------------------------\n");
 	// Ders sayısını alır
-	int DersSayi = DersEkleme(0);
+	DersSayi = DersEkleme(DersSayi);
 	// programın olmadığını belirtir
 	int program = 0;
 
@@ -217,6 +265,7 @@ int main(void) {
 		printf("A) Yeni ders ekle\n");
 		printf("B) Calisma plani olustur\n");
 		printf("C) Plani goruntule\n");
+		printf("D) Plani Kaydet\n");
 		printf("Q) Cikis\n");
 		printf("----------------------------------\n");
 		char secim;
@@ -235,6 +284,10 @@ int main(void) {
 			case 'c':
 				system("cls");
 				goruntule(DersSayi,program);
+				break;
+			case 'd':
+				system("cls");
+				kaydet(DersSayi,program);
 				break;
 			case 'q':
 				printf("Cikis yapiliyor...\n");
