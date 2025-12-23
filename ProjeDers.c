@@ -47,7 +47,7 @@ void kaydet(int dersSayi,int program) {
 	if (program == 0) {
 		system("cls");
 		printf("Plan olusturulmadi\n");
-		return 0;
+		return;
 	}
 	else {
 
@@ -79,7 +79,7 @@ void kaydet(int dersSayi,int program) {
 
 		for (int i = 0; i < dersSayi; i++) {
 			if (strlen(Ders[i][0]) == 0) break; // Boş ders adı ise dur
-			fprintf(dosya, "%-15s | %-10s | %.f | %.f |\n", Ders[i][0], Ders[i][1], floor(sure[i]/60), fmod(sure[i],60));
+			fprintf(dosya, "%-15s | %-5s |   %.f   |   %.f   |\n", Ders[i][0], Ders[i][1], floor(sure[i]/60), fmod(sure[i],60));
 		}
 
 		fclose(dosya);
