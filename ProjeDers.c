@@ -1,21 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
+// Standart kütüphaneler
+#include <stdio.h>   // giriş/çıkış işlemleri
+#include <stdlib.h>  // bellek yönetimi, exit
+#include <string.h>  // string işlemleri (strlen, fgets, vb.)
+#include <ctype.h>   // karakter sınıflandırma (tolower, isspace)
+#include <math.h>    // matematik fonksiyonları (floor, fmod)
 
 #define NAME_LEN 50
 
 /*
 Furkan Erdoğmuş
 */
-// Proje Ödevi: ders çalişma programi hesaplama
-// String sorunları mevcut
+// Proje Ödevi: Ders çalışma programı hesaplama
+// Amaç: Kullanıcıdan ders adları ve zorluklarını alıp
+//       günlük çalışma süresine orantılı olarak ders başına süre dağıtmak.
 
-char ***Ders;  // 2D matris: Ders[i][0] = ad, Ders[i][1] = zorluk (string olarak)
+// Veri yapıları
+// Ders: 2 sütunlu matris
+//   - Ders[i][0] : ders adı (string)
+//   - Ders[i][1] : ders zorluğu (string; sayısala çevrilerek kullanılır)
+
+char ***Ders;
+
+// sure[i]: i. ders için dakika cinsinden çalışma süresi
 float *sure;
+
+// CAPACITY: Şu an ayrılmış ders satırı kapasitesi (gerekirse büyütülür)
 int CAPACITY = 30;
 
+// Başlangıç bellek tahsisi: CAPACITY kadar satır ve 2 sütun ayrılır
 void dizi_boyutlama() {
 	// Ders için 2D matris: [satır][sütun] - her satır bir ders, 2 sütun (ad, zorluk)
 	Ders = (char***)malloc(CAPACITY * sizeof(char**));
@@ -30,24 +42,15 @@ void dizi_boyutlama() {
 }
 
 
-void dizi_temizle() {
-    // Ders matrisini temizle
-	for (int i = 0; i < CAPACITY; i++) {
-        free(Ders[i][0]);  // Ders adı
-        free(Ders[i][1]);  // Zorluk
-        free(Ders[i]);     // Satır
-    }
-    free(Ders);  // Tüm matris
-    
-    // sure temizleme
-    free(sure);
-}
-
+// scanf ile sayısal okumalardan sonra tamponda kalan '\n' karakterini temizler
 void buffer_temizleme() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
+// Kullanıcıdan ders adları ve zorluklarını alır
+// EkliDersSayi: daha önce eklenmiş ders sayısı (üzerine ekleme yapılır)
+// Dönüş: toplam ders sayısı
 int DersEkleme(int EkliDersSayi)
 {
 		
@@ -65,7 +68,7 @@ int DersEkleme(int EkliDersSayi)
 		}
 		buffer_temizleme();
 
-		// Gerekirse kapasiteyi büyüt (minimal: doğrudan gereken kadar)
+		// Gerekirse kapasiteyi büyüt (minimal: doğrudan gereken kadar büyütülür)
 		int needed = dersSayi + EkliDersSayi;
 		if (needed > CAPACITY) {
 			int oldCap = CAPACITY;
@@ -128,6 +131,8 @@ int DersEkleme(int EkliDersSayi)
 
 }
 
+// Günlük toplam süreyi alır, zorluklara orantılı süre dağıtır
+// program = 1 (başarılı) / 0 (başarısız)
 int olustur(int dersSayi) {
 	// Calisma plani değişkenlerini tanımlar
 	printf("Gunluk calisma suresini girin (saat): ");
@@ -147,7 +152,7 @@ int olustur(int dersSayi) {
 		return 0;
 	}
 	buffer_temizleme();
-	// Toplam zorluk değerini hesaplar
+	// Toplam zorluk değerini hesaplar (string -> float çevirerek)
 	for (int i = 0; i < dersSayi; i++) {
 		TopZorluk += atof(Ders[i][1]);
 	}
@@ -158,7 +163,7 @@ int olustur(int dersSayi) {
 		return 0;
 	}
 	else{
-	// Çalışma süresi faktörünü hesaplar ve derslere süre atar
+	// Çalışma süresi faktörünü hesaplar ve derslere süre (dakika) atar
 	faktor = (GSure*60)/TopZorluk;
 	for (int i = 0; i < dersSayi; i++) {
 		sure[i] = faktor * atof(Ders[i][1]);
@@ -171,6 +176,7 @@ int olustur(int dersSayi) {
 	}
 }
 
+// Hesaplanan planı ekrana yazdırır
 int goruntule(int dersSayi,int program) {
 	// program olup olmadığını kontrol eder
 	if (program == 0) {
@@ -193,6 +199,7 @@ return 0;
 
 
 int main(void) {
+	// Başlangıçta gerekli bellekleri ayır
 	dizi_boyutlama();
 	// Açıldığında ders ekleme ekranına yönlendirir
 	printf("Program ilk defa calistirildigi icin ders ekleme ekranina yonlendiriliyorsunuz.\n");
@@ -231,7 +238,6 @@ int main(void) {
 				break;
 			case 'q':
 				printf("Cikis yapiliyor...\n");
-				dizi_temizle();
 				exit(0);
 			default:
 				system("cls");
